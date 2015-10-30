@@ -3,28 +3,29 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Bem vindo à documentação do scrapy-venom!
+Welcome to documentation of scrapy-venom!
 ========================================
 
 
-Primeiros passos
+First steps
 -----------------
 
 .. toctree::
    :maxdepth: 2
 
-   primeiros_passos/definicao
-   primeiros_passos/instalacao
-   primeiros_passos/tutorial
+   first_steps/definition
+   first_steps/installation
+   first_steps/tutorial
 
 
-Referência
+Features
 -----------------
 
 .. toctree::
    :maxdepth: 2
 
-   referencia/linha_de_comando
-   referencia/spiders
-   referencia/steps
-   referencia/pipelines
+   features/command_line
+   features/pipelines
+   features/steps
+   features/management
+   features/exceptions
