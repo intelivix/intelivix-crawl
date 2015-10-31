@@ -24,8 +24,35 @@ Features
 .. toctree::
    :maxdepth: 2
 
-   features/command_line
-   features/pipelines
-   features/steps
-   features/management
-   features/exceptions
+   .. features/command_line
+   .. features/pipelines
+   .. features/steps
+   .. features/management
+   .. features/exceptions
+
+Roadmap
+--------
+
+* Command line tool
+   * Starts a new spider
+   * Launchs a spider in Scrapyd
+
+* Pipelines
+   * CSVPipeline
+   * ExcelPipeline
+   * JsonPipeline
+   * MongoPipeline
+   * PostgresPipeline
+   * RethinkPipeline
+
+* Steps - Crawling in a very easy way
+   * LoginStep
+   * FormStep
+   * CaptchaStep
+   * PaginationStep
+   * SearchStep
+   * PDFStep
+   * ImageStep
+   * LinkStep
+   * TableStep
+   * ListStep
