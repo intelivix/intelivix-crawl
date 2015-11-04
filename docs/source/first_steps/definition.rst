@@ -1,9 +1,6 @@
 Scrapy-venom? what?
 ======================================
 
-
-Scrapy-venom
-
 Scrapy-venom is a standard way for **web crawling** with the `Scrapy framework <http://doc.scrapy.org/>`_. Usually we started in the programming world solving simple problems with sync functions, which eventually forms the mindset for sync programming. When new people start with scrapy, which uses async functions, it's hard and confusing for they to get used to the projects. Scrapy-venom come with a new approach for the use of Scrapy, implementing the concept of flows, a definition of sequential steps to achieve the goal.
 
 

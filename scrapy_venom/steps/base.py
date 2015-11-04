@@ -3,6 +3,7 @@
 from functools import update_wrapper
 from scrapy.selector import Selector
 from scrapy.selector import SelectorList
+from ..utils import StepContext
 
 
 __all__ = ['Step']
@@ -27,33 +28,31 @@ class ExtractItemMixin(object):
 
 class Step(ExtractItemMixin):
 
-    next_step_cls = None
+    def __init__(self, spider, context={}):
+        self.spider = spider
+        self.context = context
 
     @classmethod
-    def as_func(cls, **initkwargs):
-        def step(response, **kwargs):
-            self = cls(**initkwargs)
-            selector = Selector(response)
-            for item in (self.crawl(selector, **kwargs) or []):
-                if item and isinstance(item, Selector):
-                    yield self.process_item(item)
-                elif item and isinstance(item, SelectorList):
-                    for selector in item:
-                        yield self.process_item(selector)
-                else:
-                    yield item
+    def as_func(cls, context, spider):
 
-        step.step_class = cls
-        step.step_initkwargs = initkwargs
+        def step(response, **kwargs):
+            self = cls(spider=spider, context=context)
+            selector = Selector(response)
+            for item in self.catch_items(selector, **context):
+                yield item
+
+            yield StepContext(self.get_next_step_context())
+
         update_wrapper(step, cls, updated=())
         return step
 
-    def get_next_step(self):
-        return self.next_step_cls.as_func()
-
-    def next_step(self, selector, **kwargs):
-        next_step = self.get_next_step()
-        return next_step(selector.response, **kwargs)
+    def catch_items(self, selector, **kwargs):
+        for item in self.crawl(selector, **kwargs) or []:
+            if item and isinstance(item, Selector):
+                yield self.process_item(item)
+            elif item and isinstance(item, SelectorList):
+                for selector in item:
+                    yield self.process_item(selector)
 
     def response_to_file(self, name, response):
         with open(name, 'wb') as f:
@@ -62,3 +61,6 @@ class Step(ExtractItemMixin):
     def crawl(self, selector):
         raise NotImplementedError(
             u'É necessário implementar o método crawl')
+
+    def get_next_step_context(self):
+        return {}

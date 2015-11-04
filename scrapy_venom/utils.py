@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-class _AttributeDict(dict):
+class StepContext(dict):
     """
     Subclasse de dicionario encontrada em Fabric
     instance = _AttributeDict({'ok': 'ok google'})
