@@ -1,66 +1,77 @@
 # -*- coding: utf-8 -*-
 
-from functools import update_wrapper
-from scrapy.selector import Selector
-from scrapy.selector import SelectorList
-from ..utils import StepContext
+import functools
+from scrapy import selector as scrapy_selector
+
+__all__ = ['BaseStep']
 
 
-__all__ = ['Step']
+class BaseStep(object):
+    """
+    Base class for all steps. Implements the base functions
+    and enforces the use for the BaseStep.crawl()
 
+    """
+    next_step = None
 
-class ExtractItemMixin(object):
-
-    def extract_item(self, selector):
-        return selector.extract()
-
-    def clean_item(self, extraction):
-        return extraction or {}
-
-    def build_item(self, cleaned_data):
-        return self.item_class(**cleaned_data)
-
-    def process_item(self, selector):
-        extraction = self.extract_item(selector)
-        cleaned_data = self.clean_item(extraction)
-        return self.build_item(cleaned_data or {})
-
-
-class Step(ExtractItemMixin):
-
-    def __init__(self, spider, context={}):
+    def __init__(self, spider, *args, **kwargs):
         self.spider = spider
-        self.context = context
+        self.parent_step = kwargs.pop('parent_step', None)
+        super(BaseStep, self).__init__(*args, **kwargs)
+
+    def call_next_step(self, selector, **context):
+        """
+        Calls the next step. the context argument
+        will be passed to the next step.
+
+        """
+        # Transforms the next step class into a function
+        # Passing the references to the spider and te previous step
+        func = self.next_step.as_func(
+            spider=self.spider, parent_step=self)
+
+        # I'ts necessary yield every item that the next step returns
+        for item in func(selector, **context):
+            yield item
+
+    def _crawl(self, selector):
+        """
+        Method for execute before the main implementation
+        (like "pre_crawl")
+
+        """
+        for result in self.crawl(selector):
+            yield result
 
     @classmethod
-    def as_func(cls, context, spider):
+    def as_func(cls, spider, parent_step=None):
+        """
+        Transforms the entire class into a function
 
+        """
         def step(response, **kwargs):
-            self = cls(spider=spider, context=context)
-            selector = Selector(response)
-            for item in self.catch_items(selector, **context):
-                yield item
+            self = cls(spider=spider, parent_step=parent_step)
+            selector = scrapy_selector.Selector(response)
+            for result in self._crawl(selector):
+                yield result
 
-            yield StepContext(self.get_next_step_context())
-
-        update_wrapper(step, cls, updated=())
+        functools.update_wrapper(step, cls, updated=())
         return step
 
-    def catch_items(self, selector, **kwargs):
-        for item in self.crawl(selector, **kwargs) or []:
-            if item and isinstance(item, Selector):
-                yield self.process_item(item)
-            elif item and isinstance(item, SelectorList):
-                for selector in item:
-                    yield self.process_item(selector)
+    def response_to_file(self, path, response):
+        """
+        An util method for print the actual response page to
+        a file specified at "path" argument
 
-    def response_to_file(self, name, response):
-        with open(name, 'wb') as f:
+        """
+        with open(path, 'wb') as f:
             f.write(response.body)
 
     def crawl(self, selector):
+        """
+        The main method of the spider. This needs to be implemented
+        by childs classes.
+
+        """
         raise NotImplementedError(
             u'É necessário implementar o método crawl')
-
-    def get_next_step_context(self):
-        return {}

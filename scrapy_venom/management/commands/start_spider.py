@@ -23,7 +23,7 @@ pipelines_file = '''# -*- coding: utf-8 -*-
     For examples, see the module "sample.pipelines"
 """
 
-from intelivix_crawl.pipelines import PipelineBase
+from scrapy_venom.pipelines import PipelineBase
 '''
 
 init_file = '''# -*- coding: utf-8 -*-
@@ -36,7 +36,7 @@ spider_file = '''# -*- coding: utf-8 -*-
     For examples, see the module "sample.spider"
 """
 
-from intelivix_crawl.base import SpiderBase
+from scrapy_venom.spiders import SpiderBase
 '''
 
 items_file = '''# -*- coding: utf-8 -*-
