@@ -2,7 +2,7 @@
 
 import functools
 from scrapy import selector as scrapy_selector
-from scrapy import items
+from scrapy import item as scrapy_item
 from scrapy_venom import exceptions
 from scrapy_venom.steps import base
 
@@ -50,7 +50,7 @@ class ItemStep(base.BaseStep, ExtractItemMixin):
             assert self.item_class, (
                 u'You must define an item_class attribute')
 
-            assert isinstance(self.item_class, items.Item), (
+            assert isinstance(self.item_class, scrapy_item.Item), (
                 u'The item_class must be a instance of scrapy.Item')
 
         except AssertionError as e:

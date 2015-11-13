@@ -34,8 +34,8 @@ class SpiderStep(init.InitSpider):
         try:
 
             assert self.initial_step and \
-                isinstance(self.initial_step, steps.BaseStep), (
-                    u'The initial_step attribute must be a instance'
+                issubclass(self.initial_step, steps.BaseStep), (
+                    u'The initial_step attribute must be a subclass'
                     ' of scrapy_venom.steps.BaseStep')
 
         except AssertionError as e:

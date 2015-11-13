@@ -11,7 +11,9 @@ setup(
         'scrapy_venom': [],
     },
     entry_points={
-        'console_scripts': ['venom = scrapy_venom.management:execute_command']
+        'console_scripts': [
+            'venom = scrapy_venom.command_line:execute_command'
+        ]
     },
     install_requires=[],
     zip_safe=False,

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from importlib import import_module
-from . import commands
+import importlib
+from scrapy_venom.command_line import commands
 
 
 __all__ = ['ManagementRunner']
@@ -19,7 +19,8 @@ class ManagementRunner(object):
         self.argv = argv or []
 
     def get_custom_commands(self):
-        return import_module(get_custom_commands_path())
+        return importlib.import_module(
+            get_custom_commands_path())
 
     def execute(self):
         try:

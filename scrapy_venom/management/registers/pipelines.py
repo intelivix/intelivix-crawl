@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .utils import get_project_name
+from scrapy_venom.management.registers import utils
 
 
 __all__ = ['register_pipelines']
@@ -13,7 +13,7 @@ def generate_path(project_name, pipeline):
 
 
 def register_pipelines(pipelines):
-    project_name = get_project_name()
+    project_name = utils.get_project_name()
     item_pipelines = {}
     for pipeline, priority in pipelines.iteritems():
         pipeline_path = generate_path(project_name, pipeline)
