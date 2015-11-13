@@ -40,7 +40,7 @@ class BaseStep(object):
         (like "pre_crawl")
 
         """
-        for result in self.crawl(selector):
+        for result in self.crawl(selector) or []:
             yield result
 
     @classmethod

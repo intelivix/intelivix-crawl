@@ -67,7 +67,7 @@ class Browser(object):
         else:
             return self._driver.find_element_by_xpath(xpath)
 
-    def set_cookies(self, cookies):
+    def set_cookies(self, cookies, domain=None):
         """
         Set the cookies for the current domain
 
@@ -76,7 +76,7 @@ class Browser(object):
             cookie = {}
             cookie['name'] = key
             cookie['value'] = value
-            cookie['domain'] = self.get_domain()
+            cookie['domain'] = domain or self.get_domain()
             self._driver.add_cookie(cookie)
 
     def get_domain(self):
