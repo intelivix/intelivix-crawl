@@ -62,6 +62,7 @@ class Browser(object):
         Find an element or many elements in the html by xpath
 
         """
+
         if many:
             return self._driver.find_elements_by_xpath(xpath)
         else:
@@ -106,7 +107,7 @@ class Browser(object):
 
         # Handling unicode errors
         if isinstance(value, str):
-            valor = value.decode('utf-8')
+            value = value.decode('utf-8')
 
         if xpath:
             element = self.get_element(xpath)
@@ -114,13 +115,13 @@ class Browser(object):
         if not verify_read_only:
             if clear_before:
                 element.clear()
-            element.send_keys(valor)
+            element.send_keys(value)
             return True
 
         elif not element.get_attribute('readonly'):
             if clear_before:
                 element.clear()
-            element.send_keys(valor)
+            element.send_keys(value)
             return True
 
         return False

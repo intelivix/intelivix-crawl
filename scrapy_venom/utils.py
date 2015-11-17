@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import urllib
+from scrapy import exceptions
 
 
 class StepContext(dict):
@@ -42,3 +43,19 @@ def get_hidden_fields(selector):
         value = item.xpath('./@value').extract()[0]
         hidden_fields.update({key: value})
     return hidden_fields
+
+
+def validate_required_args(arguments, spider):
+    for argument in arguments:
+        field = getattr(spider, argument)
+        if not field:
+            raise exceptions.CloseSpider(
+                reason=u'O argumento {} e obrigatorio'.format(argument))
+
+
+def get_model_or_error(model, error_message=None, **kwargs):
+    try:
+        return model.objects.get(**kwargs)
+    except model.DoesNotExist:
+        raise exceptions.CloseSpider(
+            reason=error_message or u'Objeto nao existe')

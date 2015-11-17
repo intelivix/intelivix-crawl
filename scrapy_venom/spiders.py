@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from scrapy import Request
-from scrapy.spiders import init
+from scrapy.spiders import Spider
 from scrapy_venom import steps
 from scrapy_venom import utils
 from scrapy_venom import exceptions
@@ -10,7 +10,7 @@ from scrapy_venom import exceptions
 __all__ = ['SpiderStep']
 
 
-class SpiderStep(init.InitSpider):
+class SpiderStep(Spider):
     """
     Base class for all spiders. Implements the base functions
     and enforces the concept of steps
@@ -28,10 +28,11 @@ class SpiderStep(init.InitSpider):
     initial_url = ''
     payload = {}
     options = {}
+    required_args = []
 
     def __init__(self, *args, **kwargs):
-        super(SpiderStep, self).__init__(*args, **kwargs)
         try:
+            super(SpiderStep, self).__init__(*args, **kwargs)
 
             assert self.initial_step and \
                 issubclass(self.initial_step, steps.BaseStep), (
@@ -39,21 +40,28 @@ class SpiderStep(init.InitSpider):
                     ' of scrapy_venom.steps.BaseStep')
 
         except AssertionError as e:
-            raise exceptions.ArgumentError(e.message)
+            raise exceptions.ArgumentError(reason=e.message)
 
-    def init_request(self):
+        except Exception as e:
+            raise exceptions.UnexpectedError(reason=e.message)
+
+    def start_requests(self):
 
         # Get the initial_url
         url = self.get_initial_url()
 
         # Set's the referer_url in the headers and makes the request
         hdrs = {'referer': url}
-        return Request(
+        yield Request(
             callback=self.crawl,
             headers=hdrs,
             url=url, **self.get_options())
 
     def crawl(self, response):
+
+        utils.validate_required_args(
+            self.required_args, self)
+
         initial_step = self.get_initial_step()
         for item in initial_step(response):
             yield item
