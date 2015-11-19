@@ -1,33 +1,47 @@
 # -*- coding: utf-8 -*-
 
 import tldextract
+import time
 from selenium import webdriver
 from selenium.webdriver.support import ui
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common import by
+from selenium.common import exceptions
 from scrapy_venom.steps.browser import utils
 
 
 class Popup(object):
 
-    def __init__(self, browser, element):
+    def __init__(self, browser, element, timeout):
         self.browser = browser
+        self._current = None
         self._element = element
+        self._timeout = timeout
 
     def __enter__(self):
-        self._main = self.current_window
+        old_windows = self.window_handles
+        elapsed = 0
+        self._previous = self.current_window
         self._element.click()
-        popup = [x for x in self.window_handles if x != self._main][0]
-        self.switch_to_window(popup)
+
+        while not self._current:
+            current = [x for x in self.window_handles if x not in old_windows]
+            if current:
+                self._current = current[0]
+            else:
+                time.sleep(2)
+                elapsed += 2
+                if elapsed > self._timeout:
+                    raise exceptions.TimeoutException()
+
+        self.switch_to_window(self._current)
         return self.browser
 
     def __exit__(self, type, value, traceback):
-        popups = [x for x in self.window_handles if x != self._main]
-        for popup in popups:
-            self.switch_to_window(popup)
+        if self._current in self.window_handles:
+            self.switch_to_window(self._current)
             self.browser._driver.close()
-
-        self.switch_to_window(self._main)
+        self.switch_to_window(self._previous)
 
     @property
     def current_window(self):
@@ -165,7 +179,7 @@ class Browser(object):
             ec.presence_of_element_located((by.By.XPATH, xpath))
         )
 
-    def open_popup(self, element):
+    def open_popup(self, element, timeout=10):
         """
         Open a poup by clicking in the element
 
@@ -174,7 +188,7 @@ class Browser(object):
                 # do stuff
 
         """
-        return Popup(self, element)
+        return Popup(self, element, timeout=timeout)
 
     def quit(self):
         """
