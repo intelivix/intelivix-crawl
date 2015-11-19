@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import functools
-from scrapy import selector as scrapy_selector
 
 __all__ = ['BaseStep']
 
@@ -17,6 +16,7 @@ class BaseStep(object):
     def __init__(self, spider, *args, **kwargs):
         self.spider = spider
         self.parent_step = kwargs.pop('parent_step', None)
+        self.next_step = kwargs.pop('next_step', None)
         super(BaseStep, self).__init__(*args, **kwargs)
 
     def call_next_step(self, selector, **context):
@@ -44,15 +44,16 @@ class BaseStep(object):
             yield result
 
     @classmethod
-    def as_func(cls, spider, parent_step=None):
+    def as_func(cls, spider, parent_step=None, next_step=None):
         """
         Transforms the entire class into a function
 
         """
         def step(response, **kwargs):
-            self = cls(spider=spider, parent_step=parent_step)
-            selector = scrapy_selector.Selector(response)
-            for result in self._crawl(selector):
+            self = cls(
+                spider=spider, parent_step=parent_step, next_step=next_step)
+
+            for result in self._crawl(response):
                 yield result
 
         functools.update_wrapper(step, cls, updated=())

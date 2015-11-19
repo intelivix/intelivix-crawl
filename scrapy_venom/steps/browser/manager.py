@@ -47,8 +47,8 @@ class Browser(object):
 
     """
 
-    def __init__(self):
-        self._driver = webdriver.Firefox()
+    def __init__(self, webdriver):
+        self._driver = webdriver()
 
     def get(self, url):
         """
@@ -202,12 +202,13 @@ class BrowserManager(object):
 
     """
 
-    def __init__(self, driver=None):
+    def __init__(self, driver=None, webdriver=webdriver.Firefox):
         self._driver = driver
+        self._webdriver = webdriver
 
     def __enter__(self):
         if not self._driver:
-            self._driver = Browser()
+            self._driver = Browser(self._webdriver)
         return self._driver
 
     def __exit__(self, type, value, traceback):
