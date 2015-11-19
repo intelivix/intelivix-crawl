@@ -56,7 +56,7 @@ class LoginStep(base.BaseStep):
 
         # Makes the url with the payload
         # If the initial_url was defined in the spider
-        initial_url = self.spider.get_initial_url()
+        initial_url = self.spider.initial_url or self.spider.get_initial_url()
         payload = self.spider.get_payload()
 
         if not initial_url:
@@ -65,5 +65,5 @@ class LoginStep(base.BaseStep):
         return utils.make_url(url=initial_url, payload=payload)
 
     def get_initial_step(self):
-        initial_step = self.spider.get_initial_step()
+        initial_step = self.spider.initial_step
         return initial_step.as_func(spider=self.spider)

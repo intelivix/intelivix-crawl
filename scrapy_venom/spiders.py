@@ -58,7 +58,6 @@ class SpiderStep(Spider):
             url=url, **self.get_options())
 
     def crawl(self, response):
-
         utils.validate_required_args(
             self.required_args, self)
 
