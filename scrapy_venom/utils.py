@@ -37,12 +37,16 @@ def make_url(payload, url):
 def get_hidden_fields(selector):
     """
     Get the hidden inputs in the response
+
     """
     hidden_fields = {}
     for item in selector.xpath('descendant::input[@type="hidden"]'):
-        key = item.xpath('./@name').extract()[0]
-        value = item.xpath('./@value').extract()[0]
-        hidden_fields.update({key: value})
+        key = item.xpath('./@name').extract()
+        value = item.xpath('./@value').extract()
+        if key:
+            if not value:
+                value = ['']
+            hidden_fields.update({key[0]: value[0]})
     return hidden_fields
 
 
