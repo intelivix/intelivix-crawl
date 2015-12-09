@@ -39,6 +39,12 @@ class SpiderStep(Spider):
                     u'The initial_step attribute must be a subclass'
                     ' of scrapy_venom.steps.BaseStep')
 
+            for key in self.required_args or []:
+                setattr(self, key, kwargs.get(key, ''))
+
+            for key in self.optional_args or []:
+                setattr(self, key, kwargs.get(key, ''))
+
         except AssertionError as e:
             raise exceptions.ArgumentError(reason=e.message)
 
@@ -58,6 +64,7 @@ class SpiderStep(Spider):
             url=url, **self.get_options())
 
     def crawl(self, response):
+
         utils.validate_required_args(
             self.required_args, self)
 
@@ -100,6 +107,26 @@ class AuthSpiderStep(SpiderStep):
     credentials = {}
     login_form_action = ''
 
+    def start_requests(self):
+
+        # Get the initial_url
+        url = self.get_login_url()
+
+        # Set's the referer_url in the headers and makes the request
+        hdrs = {'referer': url}
+        yield Request(
+            callback=self.crawl,
+            headers=hdrs,
+            url=url, **self.get_options())
+
+    def crawl(self, response):
+        utils.validate_required_args(
+            self.required_args, self)
+
+        login_step = self.get_login_step()
+        for item in login_step(response):
+            yield item
+
     def login_was_successful(self, selector):
         """
         Returns if the login was successful by looking at
@@ -107,10 +134,10 @@ class AuthSpiderStep(SpiderStep):
         """
         return True
 
-    def get_initial_url(self):
+    def get_login_url(self):
         return self.login_url
 
-    def get_initial_step(self):
+    def get_login_step(self):
         return self.login_step.as_func(spider=self)
 
     def get_login_form_action(self):

@@ -33,7 +33,7 @@ class SearchStep(base.BaseStep):
             assert self.action_url, (
                 u'You must define an action_url or get_action_url()')
 
-            assert self.method in ALLOWED_METHODS, (
+            assert self.http_method in ALLOWED_METHODS, (
                 u'This http_method is not allowed')
 
             assert isinstance(self.payload, dict), (
@@ -51,7 +51,7 @@ class SearchStep(base.BaseStep):
         action_url = self.get_action_url()
 
         # Get's the http method handler (GET or POST)
-        handler = getattr(self, self.method.lower())
+        handler = getattr(self, self.http_method.lower())
         yield handler(selector, action_url, payload)
 
     def get(self, selector, action_url, payload):
@@ -64,13 +64,15 @@ class SearchStep(base.BaseStep):
 
     def post(self, selector, action_url, payload):
 
+        hidden_fields = utils.get_hidden_fields(selector)
+
         # Update's the payload with hidden fields
-        payload.update(utils.get_hidden_fields(selector))
+        hidden_fields.update(payload)
 
         # Makes a POST request with the payload defined
         return http.FormRequest(
             url=action_url,
-            formdata=payload,
+            formdata=hidden_fields,
             callback=self.wrap_response
         )
 
